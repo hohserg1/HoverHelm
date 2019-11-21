@@ -266,12 +266,14 @@ end
 
 local function invokeNet(request, ...)
 	send(request,...)
-
-	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"invoke[RE][er][sr][uo][lr][t]?"))
+--																	  i   n   v   o   k   e		   E   r   r   o   r
+--																	  i   n   v   o   k   e       R   e   s   u   l   t
+--																	   p   r   i   m   a   r  y	  R   e   s   u   l   t
+	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"[ip][nr][vi][om][ka][er][y]?[RE][er][sr][uo][lr][t]?"))
 	for i=1,5 do
 		table.remove(invokeResult,1)
 	end
-	local ok = invokeResult[1]=="invokeResult"
+	local ok = invokeResult[1]:match("Result")
 	table.remove(invokeResult,1)
 	if ok then
 		for i =1,#invokeResult do
