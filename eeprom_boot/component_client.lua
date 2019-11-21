@@ -4,6 +4,8 @@ local address,port = "",0
 
 --
 
+println=prn
+
 --vcomponent
 local function vcomponentFactory()
 
@@ -421,21 +423,14 @@ local function prepareArgs(...)
 	return table.unpack(args)
 end
 
-local function test1(...)
-	println("test1",...)
-	return ...
-end
-
 local function invokeNet(request, ...)
 	send(request,prepareArgs(...))
 
-	println("t1")
-	local invokeResult = table.pack(test1(pull("modem_message")))
+	local invokeResult = table.pack(pull("modem_message"))
 	--request=="invokeResult"
 	for i=1,6 do
 		table.remove(invokeResult,1)
 	end
-	println("t2", table.unpack(invokeResult))
 	
 	for i =1,#invokeResult do
 		if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then 
