@@ -221,7 +221,7 @@ local net=primaryComponent(netComponentName)
 
 local maxPacketSize=net.maxPacketSize()
 
-local function send(...)
+function send(...)
 	net.send(...)
 end
 --

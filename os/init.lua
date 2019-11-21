@@ -29,8 +29,6 @@ end
 setmetatable(component,{__index=function(_,key) return primaryComponent(key) end})
 local fs=component.filesystem
 
-print(fs.exists("/".."system-config"..".lua"))
-
 
 local libs={}
 
@@ -83,6 +81,5 @@ local function checkAndLoadLib(name)
 end
 
 require("log")
---if config.enableLogger then load(readFile("/boot/full_log.lua"),"full_log")() end
 
 checkAndLoadLib("terminal")

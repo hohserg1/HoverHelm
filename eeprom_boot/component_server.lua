@@ -80,6 +80,10 @@ local reactions={
 	["specials.unbind"]=
 		function(index)
 			unbindSpecial(index)
+		end,
+	["log.log"]=
+		function(timeMark,lvl,t)
+		
 		end
 }
 
