@@ -250,7 +250,7 @@ local function createPlainFilter(...)
 					if not signal[i]:match(pattern[i]) then
 						return false
 					end
-				elseif signal[i]~=pattern[i] then
+				elseif pattern[i] and signal[i]~=pattern[i] then
 					return false
 				end
 			end
@@ -278,7 +278,7 @@ end
 local function invokeNet(request, ...)
 	send(request,prepareArgs(...))
 
-	local invokeResult = table.pack(pull("modem_message"))
+	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"invokeResult"))
 	for i=1,6 do
 		table.remove(invokeResult,1)
 	end
