@@ -263,33 +263,27 @@ local function pull(...)
 end
 --
 
-local function prepareArgs(...)
-	local args={...}
-	
-	for i=0,#args do
-		if type(args[i])=="table" and args[i].special then
-			args[i]="{special="..args[i].special.."}"	
-		end
-	end
-	
-	return table.unpack(args)
-end
 
 local function invokeNet(request, ...)
-	send(request,prepareArgs(...))
+	send(request,...)
 
-	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"invokeResult"))
-	for i=1,6 do
+	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"invoke[RE][er][sr][uo][lr][t]?"))
+	for i=1,5 do
 		table.remove(invokeResult,1)
 	end
-	
-	for i =1,#invokeResult do
-		if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then 
-			invokeResult[i]=unserialize(invokeResult[i])
+	local ok = invokeResult[1]=="invokeResult"
+	table.remove(invokeResult,1)
+	if ok then
+		for i =1,#invokeResult do
+			if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then 
+				invokeResult[i]=unserialize(invokeResult[i])
+			end
 		end
+		
+		return table.unpack(invokeResult)
+	else
+		error(invokeResult[1])
 	end
-	
-	return table.unpack(invokeResult)
 end
 
 

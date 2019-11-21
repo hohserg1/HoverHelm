@@ -48,30 +48,34 @@ local reactions={
 	["component.invoke"] = 
 		function(address, method, ...)
 			local args={...}
-			local specialIndex=0
-			for i=0,#args do
-				if(type(args[i])=="string") and string.sub(args[i],1,9)=="{special=" then
-					specialIndex=tonumber(string.sub(args[i],10,-2))
-					args[i]=specialByIndex(specialIndex)
-				end			
-			end
-			local r={component.proxy(address)[method](table.unpack(args))}
-			for i=0,#r do
-				if type(r[i])=="table" then
-					local nr=serialization.serialize(r[i])
-					if nr=="{type=\"userdata\"}" then
-						nr="{special="..bindSpecial(r[i]).."}"
-					end
-					r[i]=nr
-				end			
-			end
-			os.sleep(0.05)
-			print("invokeResult", r)
-			send("invokeResult",table.unpack(r))
+			local specialIndex=args[1]
+			args[1]=specialByIndex(specialIndex)
 			
 			if(method=="close")then
 				unbindSpecial(specialIndex)
 			end
+
+			local r = {pcall(component.invoke,address,method,table.unpack(args))}
+			local ok = r[1]
+			local answer = ok and "invokeResult" or "invokeError"
+			table.remove(r,1)
+			
+			if ok then
+				for i=0,#r do
+					if type(r[i])=="table" then
+						local nr=serialization.serialize(r[i])
+						if nr=="{type=\"userdata\"}" then
+							nr=bindSpecial(r[i])
+						end
+						r[i]=nr
+					end			
+				end
+			end
+			
+			os.sleep(0.05)
+			print(answer, r)
+			send(answer,table.unpack(r))
+				
 		end,
 	["specials.unbind"]=
 		function(index)
