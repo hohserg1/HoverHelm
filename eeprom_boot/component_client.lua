@@ -228,10 +228,17 @@ end
 
 --event
 local function pullFiltered(filter)
-	local signal = table.pack(computer.pullSignal(math.huge))
-	if filter(table.unpack(signal, 1, signal.n)) then
-		return table.unpack(signal, 1, signal.n)
+	local queue={}
+	repeat
+		local signal = table.pack(computer.pullSignal(math.huge))
+		table.insert(queue,signal)
+	until filter(table.unpack(signal, 1, signal.n))
+	
+	for i=1,#queue-1 do
+		computer.pushSignal(table.unpack(queue[i])
 	end
+	
+	return table.unpack(signal, 1, signal.n)
 end
 
 local function createPlainFilter(name)
@@ -262,7 +269,6 @@ local function invokeNet(request, ...)
 	send(request,prepareArgs(...))
 
 	local invokeResult = table.pack(pull("modem_message"))
-	--request=="invokeResult"
 	for i=1,6 do
 		table.remove(invokeResult,1)
 	end
