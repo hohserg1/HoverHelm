@@ -241,15 +241,25 @@ local function pullFiltered(filter)
 	return table.unpack(signal, 1, signal.n)
 end
 
-local function createPlainFilter(name)
-  return function(...)
-    local signal = table.pack(...)
-    return (type(signal[1]) == "string" and signal[1]:match(name))
-  end
+local function createPlainFilter(...)
+	local pattern=table.pack(...)
+	return function(...)
+		local signal = table.pack(...)
+			for i=1,pattern.n do
+				if type(signal[i])=="string" and type(pattern[i])=="string" then
+					if not signal[i]:match(pattern[i]) then
+						return false
+					end
+				elseif signal[i]~=pattern[i] then
+					return false
+				end
+			end
+		return true
+	end
 end
 
-local function pull(name)
-	return pullFiltered(createPlainFilter(name))
+local function pull(...)
+	return pullFiltered(createPlainFilter(...))
 end
 --
 
