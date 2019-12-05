@@ -274,9 +274,7 @@ local function invokeNet(request, ...)
 		table.remove(invokeResult,1)
 	end
 	local ok = invokeResult[1]:match("Result")
-	table.remove(invokeResult,1)
 	if ok then
-		for i =1,#invokeResult do
 			if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then 
 				invokeResult[i]=unserialize(invokeResult[i])
 			end
