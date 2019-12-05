@@ -26,7 +26,7 @@ function log.log(lvl, ...)
 end
 
 local leveledPrint = config.enableLogger and (function(lvl) return function(...) log.log(lvl,...) end end) 
-										  or (function() return function(...) end end)
+										  or (function() return function() end end)
 
 log.msg=leveledPrint(msg)
 log.warn=leveledPrint(warn)
