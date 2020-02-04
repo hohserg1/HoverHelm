@@ -1,10 +1,4 @@
---config
-local netComponentName = "tunnel"
-local address,port = "",0
-
---
-
-println=prn
+print=prn
 
 --vcomponent
 local function vcomponentFactory()
@@ -124,15 +118,15 @@ local function vcomponentFactory()
 		checkArg(1,address,"string")
 		checkArg(2,ctype,"string")
 		checkArg(3,proxy,"table")
-		
+
 		if proxylist[address] ~= nil then
 			return nil, "component already at address"
 		elseif component.type(address) ~= nil then
 			return nil, "cannot register over real component"
 		end
-		
+
 		local p = setmetatable({address = address,type = ctype},proxy)
-		
+
 		proxylist[address] = p
 		typelist[address] = ctype
 		doclist[address] = doc
@@ -217,27 +211,36 @@ local gpu = primaryComponent("gpu")
 local computer=computer
 
 --net
-local net=primaryComponent(netComponentName)
+local net=primaryComponent("modem")
+local eeprom=primaryComponent("eeprom")
 
-local maxPacketSize=net.maxPacketSize()
+local address,validPort = eeprom.getData():match(("([^:]*):?"):rep(2))
+validPort=tonumber(validPort)
+username=eeprom.getLabel()
+
+--print(username,address,validPort)
+
+net.open(validPort)
 
 function send(...)
-	net.send(...)
+	net.send(address,validPort,...)
 end
 --
 
 --event
 local function pullFiltered(filter)
 	local queue={}
+	local signal
 	repeat
-		local signal = table.pack(computer.pullSignal(math.huge))
+		signal = table.pack(computer.pullSignal(math.huge))
 		table.insert(queue,signal)
 	until filter(table.unpack(signal, 1, signal.n))
-	
+
 	for i=1,#queue-1 do
-		computer.pushSignal(table.unpack(queue[i])
+		local signal=queue[i]
+		computer.pushSignal(table.unpack(signal, 1, signal.n))
 	end
-	
+
 	return table.unpack(signal, 1, signal.n)
 end
 
@@ -247,7 +250,7 @@ local function createPlainFilter(...)
 		local signal = table.pack(...)
 			for i=1,pattern.n do
 				if type(signal[i])=="string" and type(pattern[i])=="string" then
-					if not signal[i]:match(pattern[i]) then
+					if signal[i]~=pattern[i] then
 						return false
 					end
 				elseif pattern[i] and signal[i]~=pattern[i] then
@@ -264,12 +267,12 @@ end
 --
 
 
-local function invokeNet(request, ...)
-	send(request,...)
+local function invokeNet(...)
+	send(...)
 --																	  i   n   v   o   k   e		   E   r   r   o   r
 --																	  i   n   v   o   k   e       R   e   s   u   l   t
 --																	   p   r   i   m   a   r  y	  R   e   s   u   l   t
-	local invokeResult = table.pack(pull("modem_message",_, _, _, _,"[ip][nr][vi][om][ka][er][y]?[RE][er][sr][uo][lr][t]?"))
+	local invokeResult = table.pack(pull("modem_message",_,address,validPort))
 	for i=1,5 do
 		table.remove(invokeResult,1)
 	end
@@ -277,31 +280,33 @@ local function invokeNet(request, ...)
 	if ok then
 		table.remove(invokeResult,1)
 		for i=1,#invokeResult do
-			if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then 
+			if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],2,2)~=" " then
 				invokeResult[i]=unserialize(invokeResult[i])
 			end
 		end
-		
+
 		return table.unpack(invokeResult)
 	else
-		error(invokeResult[2])
+		error(""..invokeResult[2])
 	end
 end
 
 
 local vcomponent=vcomponentFactory()
+do
+	fs_address,username = invokeNet("component.primary","filesystem",username)
+	eeprom.setLabel(username)
 
-local fs_address = invokeNet("component.primary","filesystem")
-
-local proxy = {
-	__index=function(t,k) 
-		return function(...)
-			return invokeNet("component.invoke", fs_address,k,...)
+	local proxy = {
+		__index=function(t,k)
+			return function(...)
+				return invokeNet("component.invoke", fs_address,k,...)
+			end
 		end
-	end
-}
+	}
 
-vcomponent.register(fs_address,"filesystem",proxy,{})
+	vcomponent.register(fs_address,"filesystem",proxy,{})
+end
 
 --lua bios
 
@@ -317,25 +322,15 @@ do
     end
   end
 
-  -- backwards compatibility, may remove later
-  local eeprom = component.list("eeprom")()
-  computer.getBootAddress = function()
-    return boot_invoke(eeprom, "getData")
-  end
-  computer.setBootAddress = function(address)
-    return boot_invoke(eeprom, "setData", address)
-  end
-  computer.setBootAddress(fs_address)
-
   do
     local screen = component.list("screen")()
     local gpu = component.list("gpu")()
     if gpu and screen then
-      boot_invoke(gpu, "bind", screen)
+      --boot_invoke(gpu, "bind", screen)
     end
   end
   local function tryLoadFrom(address)
-    local handle, reason = boot_invoke(address, "open", "/init.lua")
+    local handle, reason = boot_invoke(address, "open", "/system/init.lua")
     if not handle then
       return nil, reason
     end
@@ -345,15 +340,15 @@ do
       if not data and reason then
         return nil, reason
       end
-	  
+
       buffer = buffer .. (data or "")
     until not data
     boot_invoke(address, "close", handle)
     return load(buffer, "=init")
   end
   local reason
-  if computer.getBootAddress() then
-    init, reason = tryLoadFrom(computer.getBootAddress())
+  if fs_address then
+    init, reason = tryLoadFrom(fs_address)
   end
   if not init then
     computer.setBootAddress()

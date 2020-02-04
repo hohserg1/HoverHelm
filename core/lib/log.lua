@@ -1,13 +1,6 @@
 local log={}
 
-local fs=component.filesystem
 local config=require("system-config")
-
-if fs.exists(latestName) then
-	fs.rename(latestName,"/logs/"..fs.lastModified(latestName)..".log")
-end
-
-local logfile=component.filesystem.open(latestName,"a")
 
 local msg="msg"
 local warn="warn"
