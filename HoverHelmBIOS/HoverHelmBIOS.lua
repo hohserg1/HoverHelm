@@ -72,7 +72,6 @@ local function pullInsensibly(filter)
 
     for i=1,#queue-1 do
         local signal=queue[i]
-        prn("queue return ",table.unpack(signal, 1, signal.n))
         computer.pushSignal(table.unpack(signal, 1, signal.n))
     end
 
@@ -127,5 +126,4 @@ bios.fs_address=loadFile("/fs_client.lua",function(...)return bios.sendAwait("fs
 component.filesystem=component.proxy(bios.fs_address)
 local fs=component.filesystem
 
-loadFile("/init.lua",function(method,...)return fs[method](...)end)
-prn("lol1")
+--loadFile("/init.lua",function(method,...)return fs[method](...)end)

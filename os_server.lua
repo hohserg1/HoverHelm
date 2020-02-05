@@ -12,13 +12,22 @@ local serialization=require("serialization")
 local fs_server=require("fs_server")(shared_filesystem)
 --
 
+table.map=function(t,f)
+    local r={}
+    for key, value in pairs(t) do
+        r[key]=f(value)
+    end
+    return r
+end
+
 --log
 function server_log(...)
-    print(table.concat(table.pack(...)," "))
+    print(table.concat(table.map(table.pack(...),tostring)," "))
 end
 --
 
 local connectedClients={}
+local addressbyName={}
 
 local function loadClientData(address)
     local f=io.open(installDir.."users/"..address..".cfg")
@@ -50,10 +59,19 @@ local function createSenderData(address,name)
     return {address=address,name=name or address}
 end
 
+local function split(str,separator)
+    local r={}
+    for ri in string.gmatch(str, "([^"..separator.."]+)") do
+            table.insert(r, ri)
+    end
+    return table.unpack(r)
+end
+
 local reactions=setmetatable({
     fs_connect=function(senderAddress,name)
         connectedClients[senderAddress] = connectedClients[senderAddress] or loadClientData(senderAddress) or createSenderData(senderAddress,name)
         connectedClients[senderAddress].name=name
+        addressbyName[name]=senderAddress
         fs_server.fs_connect(senderAddress,name)
         send(senderAddress,"resultOk")
     end,
@@ -81,12 +99,14 @@ if netComponentName=="modem" then
         modem.setStrength(math.huge)
     end
     send=function(address,...)
-        server_log("send to",address,...)
+        server_log("send to",connectedClients[address].name,":",address)
         modem.send(address,validPort,...)
     end
-    --event.listen("modem_message",net_handler)
+    event.listen("modem_message",net_handler)
     while true do
-        net_handler(event.pull("modem_message"))
+        local name,cmd=split(io.read(),">")
+        send(addressbyName[name],cmd)
+        --net_handler(event.pullMultiple("modem_message",""))
     end
 elseif netComponentName=="tunnel" then
     event.listen("modem_message",net_handler)

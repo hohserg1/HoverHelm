@@ -2,14 +2,10 @@ local log={}
 
 local config=require("system-config")
 
-local msg="msg"
-local warn="warn"
-local error="error"
-
 log.level={
-	msg=msg,
-	warn=warn,
-	error=error
+	msg="msg",
+	warn="warn",
+	error="error"
 }
 
 function log.log(lvl, ...)
@@ -18,11 +14,18 @@ function log.log(lvl, ...)
 	send("log.log",timeMark(),lvl,t)
 end
 
-local leveledPrint = config.enableLogger and (function(lvl) return function(...) log.log(lvl,...) end end) 
+local leveledPrint = config.enableLogger and (function(lvl) return function(...) log.log(lvl,...) end end)
 										  or (function() return function() end end)
 
-log.msg=leveledPrint(msg)
-log.warn=leveledPrint(warn)
-log.error=leveledPrint(error)
+log.msg=leveledPrint(log.level.msg)
+log.warn=leveledPrint(log.level.warn)
+log.error=leveledPrint(log.level.error)
+
+local oerror=error
+error=function(e,l)
+	log.error(e)
+	log.error(debug.traceback())
+	oerror(e,(l or 1)+1)
+end
 
 return log

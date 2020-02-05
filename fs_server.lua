@@ -143,7 +143,6 @@ return function(shared_filesystem)
     function fs_server.fs_component_invoke(senderAddress,method,...)
         local proxy=proxies[senderAddress]
         local r=table.pack(pcall(proxy[method], proxy, ...))
-        print("result",table.unpack(r))
         send(senderAddress, r[1] and "result" or "error", table.unpack(r,2))
     end
 
