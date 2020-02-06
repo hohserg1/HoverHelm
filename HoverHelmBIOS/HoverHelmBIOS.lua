@@ -39,12 +39,16 @@ bios={}
 local os_server_event_filter
 
 local connector_type,address,port=split(eeprom.getData(),":")
+bios.address=address
+bios.port=port
+
 bios.name=eeprom.getLabel()
 local namedDevice=component.drone or component.robot
 if namedDevice then
     bios.name=namedDevice.name()
     eeprom.setLabel(bios.name)
 end
+
 if connector_type=="modem" then
     port=tonumber(port)
     os_server_event_filter=createPlainFilter("modem_message",_,address,port)
