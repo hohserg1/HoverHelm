@@ -2,14 +2,14 @@
 local netComponentName = "modem"
 local validPort = 1
 local shared_filesystem="e6d4e5c6-4f33-41c8-ae2c-e317a826714a"
-local installDir="/home/hoverhelm_server/"
+local installDir="/home/HoverHelm/"
 --
 
 --libs
 local event=require("event")
 local component=require("component")
 local serialization=require("serialization")
-local fs_server=require("fs_server")(shared_filesystem)
+local fs_server=require(installDir.."fs_server")(shared_filesystem)
 --
 
 table.map=function(t,f)
@@ -22,7 +22,7 @@ end
 
 --log
 function server_log(...)
-    print(table.concat(table.map(table.pack(...),tostring)," "))
+    io.write(table.concat(table.map(table.pack(...),tostring)," ").."\n")
 end
 --
 
@@ -102,12 +102,12 @@ if netComponentName=="modem" then
         server_log("send to",connectedClients[address].name,":",address)
         modem.send(address,validPort,...)
     end
-    event.listen("modem_message",net_handler)
-    --while true do
+   -- event.listen("modem_message",net_handler)
+    while true do
         --local name,cmd=split(io.read(),">")
         --send(addressbyName[name],cmd)
-        --net_handler(event.pullMultiple("modem_message",""))
-    --end
+        net_handler(event.pullMultiple("modem_message",""))
+    end
 elseif netComponentName=="tunnel" then
     event.listen("modem_message",net_handler)
 elseif netComponentName=="stem" then
