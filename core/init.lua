@@ -78,12 +78,10 @@ require("log")
 --checkAndLoadLib("event")
 local terminal=checkAndLoadLib("terminal")
 
-local currentProgram=coroutine.create(function()loadfile(".autorun.lua")end)
-coroutine.resume(currentProgram)
-
-if terminal then
-	while true do
-		terminal.tick()
+while true do
+	local event_name,receiverAddress, senderAddress, port, distance,cmd,args=computer.pullSignal(math.huge)
+	if event_name=="modem_message" and senderAddress==bios.address and port==bios.port then
+		load(cmd)()
 	end
 end
 
