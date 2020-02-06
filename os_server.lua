@@ -103,11 +103,11 @@ if netComponentName=="modem" then
         modem.send(address,validPort,...)
     end
     event.listen("modem_message",net_handler)
-    while true do
-        local name,cmd=split(io.read(),">")
-        send(addressbyName[name],cmd)
+    --while true do
+        --local name,cmd=split(io.read(),">")
+        --send(addressbyName[name],cmd)
         --net_handler(event.pullMultiple("modem_message",""))
-    end
+    --end
 elseif netComponentName=="tunnel" then
     event.listen("modem_message",net_handler)
 elseif netComponentName=="stem" then

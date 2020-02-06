@@ -126,4 +126,4 @@ bios.fs_address=loadFile("/fs_client.lua",function(...)return bios.sendAwait("fs
 component.filesystem=component.proxy(bios.fs_address)
 local fs=component.filesystem
 
---loadFile("/init.lua",function(method,...)return fs[method](...)end)
+loadFile("/init.lua",function(method,...)return fs[method](...)end)
