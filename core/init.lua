@@ -93,8 +93,8 @@ function os.run_program(filename,...)
 end
 
 require("log")
+require("event")
 
---checkAndLoadLib("event")
 require_if_enabled("terminal")
 
 while true do
