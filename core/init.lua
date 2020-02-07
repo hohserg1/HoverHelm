@@ -1,7 +1,5 @@
 local fs=component.filesystem
 
-computer.pullSignal()
-
 function cachedFunction(f)
 	local cache={}
 
