@@ -57,7 +57,7 @@ function readFile(filename)
 end
 
 function loadfile(path,name)
-	name=name or path
+	name=name or path:sub((path:find("/",-1) or 0)+1)
 	local code=readFile(path)
 	if code then
 		local l,err=load(code,name)
