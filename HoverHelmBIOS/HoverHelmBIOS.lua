@@ -125,7 +125,8 @@ end
 
 
 bios.sendAwait("fs_connect",bios.name)
-bios.fs_address=loadFile("/fs_client.lua",function(...)return bios.sendAwait("fs_component_invoke",...)end).fs_connect()
+fs_client=loadFile("/fs_client.lua",function(...)return bios.sendAwait("fs_component_invoke",...)end)
+bios.fs_address=fs_client.fs_connect()
 
 
 component.filesystem=component.proxy(bios.fs_address)
