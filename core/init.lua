@@ -14,6 +14,13 @@ function cachedFunction(f)
 	end,cache
 end
 
+table.map=function(t,f)
+    local r={}
+    for key, value in pairs(t) do
+        r[key]=f(value)
+    end
+    return r
+end
 
 local libs={}
 
