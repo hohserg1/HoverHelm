@@ -39,6 +39,8 @@ bios={}
 local os_server_event_filter
 
 local connector_type,address,port=split(eeprom.getData(),":")
+port=port and tonumber(port)
+
 bios.address=address
 bios.port=port
 
@@ -50,7 +52,6 @@ if namedDevice then
 end
 
 if connector_type=="modem" then
-    port=tonumber(port)
     os_server_event_filter=createPlainFilter("modem_message",_,address,port)
     prn(address,port)
     local modem=component.modem
