@@ -86,6 +86,11 @@ local function require_if_enabled(name)
 end
 
 prn("kek1")
+function os.run_program(filename,...)
+	os.current_program=fs_client.canonical(filename)
+    loadfile(filename,os.current_program,...)
+    os.current_program=nil
+end
 
 require("log")
 
