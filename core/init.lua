@@ -73,7 +73,9 @@ end
 
 require = cachedFunction(
 	function(libname)
-		return loadfile(findLibrary(libname))
+		local r = loadfile(findLibrary(libname))
+		_G[libname]=r
+		return r
 	end
 )
 
