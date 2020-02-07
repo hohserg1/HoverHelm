@@ -13,7 +13,7 @@ setmetatable(component,
 
 local eeprom=component.eeprom
 
-local function split(str,separator)
+function split(str,separator)
     local r={}
     for ri in string.gmatch(str, "([^"..separator.."]+)") do
             table.insert(r, ri)
