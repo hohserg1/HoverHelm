@@ -24,13 +24,20 @@ end
 
 local libs={}
 
-local function findLibrary(libname)
-	local p1 = libname..".lua"
-	local p2 = "/lib/"..libname..".lua"
+function findFileIn(filename,...)
+	local places=table.pack(...)
+	for _, value in pairs(places) do
+		local candidate=value.."/"..filename
+		if fs.exists(value.."/"..filename) then
+			return candidate
+		end
+	end
+	error("file not found: \""..libname.."\" at locations: {"..table.concat(places,", ").."}")
+end
 
-	return fs.exists(p1) and p1
-		or fs.exists(p2) and p2
-		or error("lib not found: \""..libname.."\" at locations: {"..p1..", "..p2.."}")
+local function findLibrary(libname)
+
+	return findFileIn(libname..".lua","/","/lib/")
 end
 
 function readFile(filename)
