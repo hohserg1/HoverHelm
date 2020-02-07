@@ -1,15 +1,19 @@
+print(pcall(function()
 --config
 local netComponentName = "modem"
 local validPort = 1
 local shared_filesystem="e6d4e5c6-4f33-41c8-ae2c-e317a826714a"
 local installDir="/home/HoverHelm/"
+local timezone=3
 --
 
 --libs
 local event=require("event")
+local term=require("term")
 local component=require("component")
 local serialization=require("serialization")
-local fs_server=require(installDir.."fs_server")(shared_filesystem)
+local fs_server=loadfile(installDir.."fs_server.lua")()(shared_filesystem)
+local log_server=loadfile(installDir.."log_server.lua")()(timezone)
 --
 
 table.map=function(t,f)
@@ -20,11 +24,12 @@ table.map=function(t,f)
     return r
 end
 
---log
-function server_log(...)
-    io.write(table.concat(table.map(table.pack(...),tostring)," ").."\n")
-end
---
+
+local gpu=component.gpu
+local w,h=gpu.getResolution()
+gpu.fill(1,1,w,h," ")
+gpu.fill(1,h,w,1,"=")
+gpu.fill(1,h-2,w,1,"-")
 
 local connectedClients={}
 local addressbyName={}
@@ -42,13 +47,13 @@ local function loadClientData(address)
         if ok then
             ok,err=pcall(ok)
             if not ok then
-                server_log("error when loading config for ",address)
-                server_log("    ",err)
+                log_server.error("error when loading config for ",address)
+                log_server.error("    ",err)
             end
             return ok
         else
-            server_log("error when loading config for ",address)
-            server_log("    ",err)
+            log_server.error("error when loading config for ",address)
+            log_server.error("    ",err)
         end
     end
     return nil
@@ -77,6 +82,9 @@ local reactions=setmetatable({
     end,
     fs_component_invoke=function(senderAddress,method,...)
         fs_server.fs_component_invoke(senderAddress,method,...)
+    end,
+    log_log=function(senderAddress,lvl,msg)
+        log_server.print(lvl,msg)
     end
 },{__index=function(_,key)
     return function(senderAddress)
@@ -87,7 +95,7 @@ end})
 
 local function net_handler(_,receiverAddress, senderAddress, port, distance, msg, ...)
     if port==validPort then
-        server_log("by",senderAddress,"received message",msg,...)
+        log_server.msg("by ",senderAddress," received message ",msg,...)
         reactions[msg](senderAddress,...)
     end
 end
@@ -99,17 +107,29 @@ if netComponentName=="modem" then
         modem.setStrength(math.huge)
     end
     send=function(address,...)
-        server_log("send to",connectedClients[address].name,":",address)
+        log_server.msg("send to ",connectedClients[address].name,":",address,...)
         modem.send(address,validPort,...)
     end
-   -- event.listen("modem_message",net_handler)
+    event.listen("modem_message",net_handler)
     while true do
-        --local name,cmd=split(io.read(),">")
-        --send(addressbyName[name],cmd)
-        net_handler(event.pullMultiple("modem_message",""))
-    end
+        gpu.fill(1,h-1,w,1," ")
+        term.setCursor(1,h-1)
+        local success, line, description=pcall(term.read, {nowrap = true})
+        if not success or description == 'interrupted' then
+            event.ignore("modem_message", net_handler)
+            os.exit()
+        end
+        line=line:sub(1,-2)--cut end line simbols
+        local name,cmd=split(line,">")
+        if cmd and addressbyName[name] then
+            send(addressbyName[name],cmd)
+        end
+        log_server.msg(line)
+   end
 elseif netComponentName=="tunnel" then
     event.listen("modem_message",net_handler)
 elseif netComponentName=="stem" then
     --To do
 end
+end))
+os.sleep(10)

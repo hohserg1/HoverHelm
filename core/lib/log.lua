@@ -9,9 +9,7 @@ log.level={
 }
 
 function log.log(lvl, ...)
-	local t=table.concat({...},", ")
-	--table.concat({"[",timeMark(),"]","[",lvl,"]",...},", ").."\n"
-	send("log.log",timeMark(),lvl,t)
+	send("log_log",lvl,table.concat(table.map({...},tostring),", "))
 end
 
 local leveledPrint = config.enableLogger and (function(lvl) return function(...) log.log(lvl,...) end end)
