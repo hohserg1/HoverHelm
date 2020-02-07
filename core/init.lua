@@ -56,13 +56,13 @@ function readFile(filename)
 	end
 end
 
-function loadfile(path,name)
+function loadfile(path,name,...)
 	name=name or path:sub((path:find("/",-1) or 0)+1)
 	local code=readFile(path)
 	if code then
 		local l,err=load(code,name)
 		if l then
-			return l()
+			return l(...)
 		else
 			prn("err",err)
 			error(err)
