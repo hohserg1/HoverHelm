@@ -198,4 +198,8 @@ function fs_client.fs_connect()
     return fs_address
 end
 
+function fs_client.canonical(path)
+	return ("/"..path):gsub("//+","/")
+end
+
 return fs_client
