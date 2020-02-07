@@ -85,7 +85,6 @@ local function require_if_enabled(name)
 	return config[name] and require(name)
 end
 
-prn("kek1")
 function os.run_program(filename,...)
 	os.current_program=fs_client.canonical(filename)
     loadfile(filename,os.current_program,...)
@@ -96,8 +95,6 @@ require("log")
 require("event")
 
 require_if_enabled("terminal")
-
-prn("kek1")
 
 event.listen("modem_message",function(_,receiverAddress, senderAddress, port, distance,cmd,...)
 	if senderAddress==bios.address and port==bios.port then
