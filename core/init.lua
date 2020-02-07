@@ -97,11 +97,22 @@ require("event")
 
 require_if_enabled("terminal")
 
-while true do
-	local event_name,receiverAddress, senderAddress, port, distance,cmd,args=computer.pullSignal(math.huge)
-	if event_name=="modem_message" and senderAddress==bios.address and port==bios.port then
-		load(cmd)()
+prn("kek1")
+
+event.listen("modem_message",function(_,receiverAddress, senderAddress, port, distance,cmd,...)
+	if senderAddress==bios.address and port==bios.port then
+		computer.pushSignal("os_server_message",cmd,...)
 	end
+end)
+
+local autorun_file_name="/.autorun.lua"
+if fs.exists(autorun_file_name) then
+	os.current_program=autorun_file_name
+	loadfile(autorun_file_name)
+end
+
+while true do
+	computer.pullSignal(math.huge)
 end
 
 
