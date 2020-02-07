@@ -81,7 +81,7 @@ require = cachedFunction(
 
 local config=require("system-config")
 
-local function checkAndLoadLib(name)
+local function require_if_enabled(name)
 	return config[name] and require(name)
 end
 
@@ -90,7 +90,7 @@ prn("kek1")
 require("log")
 
 --checkAndLoadLib("event")
-local terminal=checkAndLoadLib("terminal")
+require_if_enabled("terminal")
 
 while true do
 	local event_name,receiverAddress, senderAddress, port, distance,cmd,args=computer.pullSignal(math.huge)
