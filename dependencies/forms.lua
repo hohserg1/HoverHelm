@@ -288,6 +288,7 @@ local TEdit = setmetatable(
 		H = 3,
 		text = "",
 		border = 1,
+		lua_highlight = false,
 		type = function()
 			return "Edit"
 		end
@@ -296,25 +297,31 @@ local TEdit = setmetatable(
 )
 TEdit.__index = TEdit
 
-function TEdit:paint()
-	if type(self.text) == "table" then
-		for i = 1, self.H - 2 do
-			gpu.set(
-				self.X + 1,
-				self.Y + i,
-				sub(self.text[i] or "", 1, self.W - 2)
-			)
-		end
+local syntax = require("syntax")
+
+function TEdit:drawLine(x, y, line)
+	if self.lua_highlight then
+		syntax.highlightAndDraw(x, y, self.W, line)
 	else
-		gpu.set(self.X + 1, self.Y + 1, sub(self.text, 1, self.W - 2))
+		gpu.set(x, y, sub(line, 1, self.W - 2))
 	end
 end
 
-local function editText(text, left, top, W, H)
+function TEdit:paint()
+	if type(self.text) == "table" then
+		for i = 1, self.H - 2 do
+			self:drawLine(self.X + 1, self.Y + i, self.text[i] or "")
+		end
+	else
+		self:drawLine(self.X + 1, self.Y + 1, self.text)
+	end
+end
+
+local function editText(self, text, left, top, W, H,user)
 	local running = true
+	local enter_call=false
 	local scrollX, scrollY = 0, 0
 	local posX, posY = 1, 1
-	local writeText
 
 	local function setCursor(nx, ny)
 		posX = nx or posX
@@ -359,14 +366,14 @@ local function editText(text, left, top, W, H)
 	end
 
 	local function writeLine(n)
-		gpu.set(
+		self:drawLine(
 			left,
 			top + n - scrollY - 1,
 			padRight(sub(text[n] or "", scrollX + 1, scrollX + W), W)
 		)
 	end
 
-	function writeText()
+	local function writeText()
 		for i = 1, H do
 			writeLine(i + scrollY)
 		end
@@ -495,6 +502,7 @@ local function editText(text, left, top, W, H)
 		text = { tostring(text) }
 		keys[28] = function()
 			running = false
+			enter_call=true
 		end
 	end
 	term.setCursorBlink(true)
@@ -516,11 +524,12 @@ local function editText(text, left, top, W, H)
 			term.setCursorBlink(true)
 		end
 	end
+
 	if event == "touch" then
 		pushSignal(event, address, arg1, arg2, arg3)
 	end
 	term.setCursorBlink(false)
-	return text[1]
+	return text[1],enter_call
 end
 
 function TEdit:touch(x, y, btn, user)
@@ -528,23 +537,32 @@ function TEdit:touch(x, y, btn, user)
 		gpu.setBackground(self.color)
 		gpu.setForeground(self.fontColor)
 		if type(self.text) == "table" then
-			editText(self.text, self.X + 1, self.Y + 1, self.W - 2, self.H - 2)
+			_,enter_call = editText(
+				self,
+				self.text,
+				self.X + 1,
+				self.Y + 1,
+				self.W - 2,
+				self.H - 2
+			)
 		else
-			self.text =
-				editText(self.text, self.X + 1, self.Y + 1, self.W - 2, 1)
+			self.text,enter_call =
+				editText(self, self.text, self.X + 1, self.Y + 1, self.W - 2, 1,user)
 		end
 		self:draw()
-		if self.onEnter then
-			self:onEnter(user)
+
+		if enter_call and self.onEnter then
+			return self:onEnter(user)
 		end
 	end
 end
 
-function TComponent:addEdit(left, top, onEnter)
+function TComponent:addEdit(left, top, onEnter, lua_highlight)
 	local obj = {
 		left = left,
 		top = top,
-		onEnter = onEnter
+		onEnter = onEnter,
+		lua_highlight = lua_highlight
 	}
 	self:makeChild(obj)
 	return setmetatable(obj, TEdit)
