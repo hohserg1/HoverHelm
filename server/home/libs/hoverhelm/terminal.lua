@@ -78,7 +78,7 @@ return {
         hh_rt_connect = function(card, sender, terminalName)
             local devices = map(cardByDeviceName, function(deviceName) return deviceName end)
             card.send(sender, "hh_rt_device_list", (">s1"):rep(#devices):pack(table.unpack(devices)))
-            terminalByAddress[sender] = setmetatable({terminalAddress = sender, terminalName = terminalName, attachedDevice = nil}, baseRemoteTerminal)
+            terminalByAddress[sender] = setmetatable({terminalAddress = sender, terminalName = terminalName, attachedDevice = nil, card=card}, baseRemoteTerminal)
         end,
         
         hh_rt_attach_to_device = function(card, sender, forDevice)
