@@ -1,5 +1,5 @@
 return {
-    userRoodFolder="/home/hoverhelm/devices/",
+    userRootFolder="/home/hoverhelm/devices/",
     coreRootFolder="/home/hoverhelm/device_core/",
     inUseNetworkCards = {
         ["address"] = {

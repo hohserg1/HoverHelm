@@ -130,7 +130,7 @@ return {
         hh_connect = function(card,sender,_)
             local actualDeviceName = userdata.getDeviceName(sender)
             if actualDeviceName then
-                local userFolder = config.userRoodFolder.."/"..actualDeviceName.."/"
+                local userFolder = config.userRootFolder.."/"..actualDeviceName.."/"
                 if not filesystem.exists(userFolder) then
                     filesystem.makeDirectory(userFolder)
                 end
