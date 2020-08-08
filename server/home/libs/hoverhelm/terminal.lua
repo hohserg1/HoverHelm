@@ -27,7 +27,7 @@ local function timeMark()
 end
 
 local function prepareText(lvl,message)
-    return table.concat({"[", timeMark(), "]", "[", lvl, "] ", message})
+    return ("[%s][%s] %s"):format(timeMark(), lvl, message)
 end
 
 local baseRemoteTerminal = {__index = {
