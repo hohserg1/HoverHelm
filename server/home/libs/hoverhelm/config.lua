@@ -1,11 +1,11 @@
 return {
-	userRoodFolder="/home/hoverhelm/devices/",
-	coreRootFolder="/home/hoverhelm/device_core/",
-	inUseNetworkCards = {
-		["address"] = {
-			port = 1 -- 0 for tunnel
-		}
-	},
-	timezone=0
-	
+    userRoodFolder="/home/hoverhelm/devices/",
+    coreRootFolder="/home/hoverhelm/device_core/",
+    inUseNetworkCards = {
+        ["address"] = {
+            port = 1 -- 0 for tunnel
+        }
+    },
+    timezone=0
+    
 }
