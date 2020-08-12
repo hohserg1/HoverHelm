@@ -123,8 +123,8 @@ local baseProxy={__index={
     end),
     
     list = pathFunctionWrapper(function(self, userLocated, coreLocated)        
-        local r=filesystem.list(coreLocated)
-        foreach(filesystem.list(userLocated), function(key, value) r[key]=value end)
+        local r=filesystem.list(coreLocated) or {}
+        foreach(filesystem.list(userLocated) or {}, function(key, value) r[key]=value end)
         return r
     end)
 }}
