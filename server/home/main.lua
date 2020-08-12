@@ -13,7 +13,7 @@ do
     print("HoverHelm init...")
     
     local function prepareHandler(handler,moduleName, handlerName)
-        return setmetatable({handler,description=moduleName.."#"..handlerName},{__call(self,...)return self[1](...)end})
+        return setmetatable({handler,description=moduleName.."#"..handlerName},{__call=function(self, ...)return self[1](...)end})
     end
     
     local temp = collect(filesystem.list("/home/lib/hoverhelm/"))
