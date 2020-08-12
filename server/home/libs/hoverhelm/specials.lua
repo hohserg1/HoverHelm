@@ -1,4 +1,7 @@
 return {
+    createNewSpecials = function()
+        return {n=0}    
+    end,
     bindSpecial = function(specials, value)
         local index=#specials+1
         specials[index]=value

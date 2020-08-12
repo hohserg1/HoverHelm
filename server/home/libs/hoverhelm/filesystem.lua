@@ -35,10 +35,18 @@ local baseProxy={__index={
         if mode=="w" or mode=="a" then
             return specials.bindSpecial(self.specials, filesystem.open(userLocated,mode))
         elseif mode=="r" then
-            if fs.exists(userLocated) then
-                return specials.bindSpecial(self.specials, filesystem.open(userLocated,"r"))
+            local handle,err
+            
+            if filesystem.exists(userLocated) then
+                handle,err = filesystem.open(userLocated,"r")
             else
-                return specials.bindSpecial(self.specials, filesystem.open(coreLocated,"r"))
+                handle,err = filesystem.open(coreLocated,"r")
+            end
+            
+            if handle then
+                return specials.bindSpecial(self.specials, handle)
+            else
+                return handle,err
             end
         end
     end),
@@ -131,7 +139,7 @@ return {
                 if not filesystem.exists(userFolder) then
                     filesystem.makeDirectory(userFolder)
                 end
-                fsProxyByAddress[sender] = setmetatable({userFolder=userFolder},baseProxy)        
+                fsProxyByAddress[sender] = setmetatable({userFolder = userFolder, specials = specials.createNewSpecials()},baseProxy)        
             end
         end,
         
