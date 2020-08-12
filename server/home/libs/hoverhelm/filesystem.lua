@@ -1,7 +1,4 @@
-local config=hh_module"config"
 local filesystem=require"filesystem"
-local userdata=hh_module"userdata"
-local specials=hh_module"specials"
 
 local fsProxyByAddress = {}
 

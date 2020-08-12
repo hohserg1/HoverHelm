@@ -1,6 +1,5 @@
 local filesystem=require"filesystem"
 local serialization=require"serialization"
-local utils=hh_module"utils"
 
 local deviceNameByAddress={}
 local addressByDeviceName={}

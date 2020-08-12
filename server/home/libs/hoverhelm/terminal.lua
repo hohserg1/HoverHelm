@@ -1,6 +1,3 @@
-local config=hh_module"config"
-local userdata=hh_module"userdata"
-local log=hh_module"log"
 local gpu=require"component".gpu
 --prepare screen
     gpu.setForeground(0xaa00ff)

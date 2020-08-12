@@ -5,23 +5,30 @@ end
 local event=require"event"
 local component=require"component"
 local filesystem=require"filesystem"
+local utils=hh_module"utils"
 
 local handlers={}
 
-for filename in filesystem.list("/home/lib/hoverhelm/") do
-    if filename:sub(-4)==".lua" then
-        local module = hh_module(filename:sub(1, -5))
-        foreach(module.handlers, function(k,handler)
-            if k == "hh_connect" then
-                print(filename)
-            end
-            handlers[k]=handlers[k] or {}
-            table.insert(handlers[k],handler)
-        end)
-    end
+do
+    print("HoverHelm init...")
+    local temp = collect(filesystem.list("/home/lib/hoverhelm/"))
+    table.sort(temp)
+    foreach(temp,function(_,filename) 
+        if filename:sub(-4)==".lua" then
+            local modulename = filename:sub(1, -5)
+            --print(modulename)
+            local module = hh_module(modulename)
+            _G[modulename]=module
+            foreach(module.handlers or {}, function(k,handler)
+                --print(" ",k)
+                handlers[k]=handlers[k] or {}
+                table.insert(handlers[k],handler)
+            end)
+        end
+    end)
+    os.sleep(5)
 end
 
-local terminal=hh_module"terminal"
 
 local networkCards = 
     map(config.inUseNetworkCards,function(address,cfg)
