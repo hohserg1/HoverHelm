@@ -11,6 +11,11 @@ local handlers={}
 
 do
     print("HoverHelm init...")
+    
+    local function prepareHandler(handler,moduleName, handlerName)
+        return setmetatable({handler,description=moduleName.."#"..handlerName},{__call(self,...)return self[1](...)end})
+    end
+    
     local temp = collect(filesystem.list("/home/lib/hoverhelm/"))
     table.sort(temp)
     foreach(temp,function(_,filename) 
@@ -22,7 +27,7 @@ do
             foreach(module.handlers or {}, function(k,handler)
                 --print(" ",k)
                 handlers[k]=handlers[k] or {}
-                table.insert(handlers[k],handler)
+                table.insert(handlers[k],prepareHandler(handler,modulename,k))
             end)
         end
     end)
@@ -50,8 +55,13 @@ hoverhelmModemMessageHandler = event.listen("modem_message",function(_,receiverA
 
     if config.inUseNetworkCards[receiverAddress] and config.inUseNetworkCards[receiverAddress].port == port then
         local card = networkCards[receiverAddress]
+        local args = table.pack(...)
         foreach(handlers[msg],  function(_,handler)
-            handler(card, senderAddress,...)
+            local ok, err = pcall(handler,card, senderAddress,table.unpack(args))
+            if not ok then 
+                terminal.noticeLocalLog(terminal.log_level.err, "Exception on calling handler "..handler.description..err)
+                terminal.noticeLocalLog(terminal.log_level.err, "   "..err)
+            end
         end)
     end
 
