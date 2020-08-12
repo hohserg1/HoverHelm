@@ -7,8 +7,8 @@ local fsProxyByAddress = {}
 
 local function pathFunctionWrapper(f)
     return function(self, path, ...)
-        local userLocated = ("%/%"):format(self.userFolder, path)
-        local coreLocated = ("%/%"):format(config.coreRootFolder, path)
+        local userLocated = ("%s/%s"):format(self.userFolder, path)
+        local coreLocated = ("%s/%s"):format(config.coreRootFolder, path)
         return f(self, userLocated,coreLocated, ...)
     end
 end
