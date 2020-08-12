@@ -146,6 +146,7 @@ return {
         hh_fs_invoke = function(card,sender, method, ...)
             local proxy = fsProxyByAddress[sender]
             if proxy then
+                --local r = table.pack(xpcall(proxy[method], debug.traceback, proxy, ...))
                 local r = table.pack(pcall(proxy[method], proxy, ...))
                 card.send(sender, r[1] and "hh_result" or "hh_error", 
                     table.unpack(
