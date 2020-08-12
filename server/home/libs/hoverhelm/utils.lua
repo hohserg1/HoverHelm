@@ -15,7 +15,6 @@ function foreach(t, f)
         f(k,v)
     end
 end
-return {}
 
 function mapSeq(seq, f)
     local r = {}
@@ -32,3 +31,17 @@ function split(str, separator)
     end
     return table.unpack(r)
 end
+
+function collect(iterator)
+    local r = {}
+    for k,v in iterator do
+        if v then
+            r[k] = v
+        else
+            table.insert(r,k)
+        end
+    end
+    return r
+end
+
+return {}
