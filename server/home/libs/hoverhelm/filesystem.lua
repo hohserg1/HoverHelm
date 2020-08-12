@@ -147,7 +147,11 @@ return {
             local proxy = fsProxyByAddress[sender]
             if proxy then
                 local r = table.pack(pcall(proxy[method], proxy, ...))
-                card.send(sender, r[1] and "hh_result" or "hh_error", table.unpack(r,2))
+                card.send(sender, r[1] and "hh_result" or "hh_error", 
+                    table.unpack(
+                        mapSeq(r, function(v) return type(v)=="table" and serialization.serialize(v) or v end)
+                    ,2)
+                )
             else
                 card.send(sender,"hh_error","not connected")            
             end
