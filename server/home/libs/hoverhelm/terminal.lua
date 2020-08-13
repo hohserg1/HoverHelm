@@ -10,18 +10,6 @@ local gpu=component.gpu
     local inputYPos = h-1
     
 
-local tfs = component.proxy(require("computer").tmpAddress())
-
-local function timeMark()
-    local name = "time"
-    local f = tfs.open(name, "w")
-    tfs.close(f)
-
-    local time = math.floor(tfs.lastModified(name) / 1000 + 3600 * config.timezone)
-
-    return os.date("%Y-%m-%d %H:%M:%S", time)
-end
-
 local function prepareText(lvl,message)
     return ("[%s][%s] %s"):format(timeMark(), lvl, message)
 end

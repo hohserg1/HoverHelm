@@ -44,4 +44,17 @@ function collect(iterator)
     return r
 end
 
+local component=require"component"
+local tfs = component.proxy(require"computer".tmpAddress())
+
+function timeMark()
+    local name = "time"
+    local f = tfs.open(name, "w")
+    tfs.close(f)
+
+    local time = math.floor(tfs.lastModified(name) / 1000 + 3600 * config.timezone)
+
+    return os.date("%Y-%m-%d %H:%M:%S", time)
+end
+
 return {}
