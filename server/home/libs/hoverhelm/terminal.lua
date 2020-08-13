@@ -61,8 +61,13 @@ local function noticeLog(deviceAddress, color, message)
 end
 local function inputOnDevice(deviceName, terminal, command)
     local deviceAddress = userdata.getDeviceAddress(deviceName)
-    cardByDeviceName[deviceName].send(deviceAddress, "hh_input", command)
-    noticeLog(deviceAddress, log_level.msg, terminal.terminalName..">>"..deviceName..">"..command)
+    local card = cardByDeviceName[deviceName]
+    if card then
+        card.send(deviceAddress, "hh_input", command)
+        noticeLog(deviceAddress, log_level.debug, terminal.terminalName..">>"..deviceName..">"..command)
+    else
+        noticeLocalLog(log_level.error, "Unable to send input for "..deviceName..". Is it valid device name?")
+    end
 end
 
 
