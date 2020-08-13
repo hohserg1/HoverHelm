@@ -124,11 +124,7 @@ local function unserialize(tableString)
 end
 
 
-bios.card.sendAwait = function(...)
-
-    bios.card.send(...)
-    
-    
+bios.card.await = function()
     local invokeResult = table.pack(pullInsensibly(hhServerEventFilter))
     
     -- remove formal values
@@ -136,18 +132,28 @@ bios.card.sendAwait = function(...)
         table.remove(invokeResult,1)
     end
     
+    -- prepare values, find potential tables and unserialize
+    for i=1,invokeResult.n do
+        if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],-1,-1)=="}" then
+            invokeResult[i]=unserialize(invokeResult[i])
+        end
+    end
+        
+    return table.unpack(invokeResult)
+end
+
+bios.card.sendAwait = function(...)
+
+    bios.card.send(...)
+    println("          send",...)
+    
+    local invokeResult = table.pack(bios.card.await())
+    
+    println("test",table.unpack(invokeResult))
+    
     local ok = invokeResult[1] ~= "hh_error"
     if ok then
-        table.remove(invokeResult,1)
-        
-        -- prepare values, find potential tables and unserialize
-        for i=1,invokeResult.n do
-            if type(invokeResult[i])=="string" and string.sub(invokeResult[i],1,1)=="{" and string.sub(invokeResult[i],-1,-1)=="}" then
-                invokeResult[i]=unserialize(invokeResult[i])
-            end
-        end
-
-        return table.unpack(invokeResult)
+        return table.unpack(invokeResult, 2)
     else
         error(tostring(invokeResult[2]))
     end
@@ -175,7 +181,8 @@ end
 
 
 bios.name = bios.card.sendAwait("hh_connect", bios.name)
-println("test1")
+
+println("test1",bios.name)
 bios.fsAddress=loadFile("/secondary-eeprom.lua",function(...)return bios.card.sendAwait("hh_fs_invoke",...)end)
 println("test2")
 
