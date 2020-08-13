@@ -57,7 +57,12 @@ local function noticeLocalLog(color, message)
 end
 
 local function noticeLog(deviceAddress, color, message)
-    foreach(terminalsByDeviceAddress[deviceAddress], function(_,terminal) terminal:addLine(color, message) end)
+    local l = collect(lines(message))
+    foreach(terminalsByDeviceAddress[deviceAddress], function(_,terminal) 
+        foreach(l, function(_,line)
+            terminal:addLine(color, line)
+        end)
+    end)
 end
 local function inputOnDevice(deviceName, terminal, command)
     local deviceAddress = userdata.getDeviceAddress(deviceName)
