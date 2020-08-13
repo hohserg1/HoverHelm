@@ -30,7 +30,8 @@ end
 local log_level={
     msg=0xffffff,
     warn=0xffff00,
-    error=0xff0000
+    error=0xff0000,
+    debug=0x11ff11
 }
 
 foreach(log_level,function(name,color)log_level[color]=name end)
@@ -44,16 +45,18 @@ local baseRemoteTerminal = {__index = {
 local localTerminal = {
     terminalName = "local",
     addLine = function(self, color, message)
-        if logYPos==logHeight then
-            gpu.copy(1,2, logWidth, logHeight, 0, -1)
-            gpu.fill(1,logHeight,logWidth,1," ")
-        else
-            logYPos=logYPos+1
+        if color~=log_level.debug or config.debugLog then
+            if logYPos==logHeight then
+                gpu.copy(1,2, logWidth, logHeight, 0, -1)
+                gpu.fill(1,logHeight,logWidth,1," ")
+            else
+                logYPos=logYPos+1
+            end
+            
+            gpu.setForeground(color)
+            gpu.set(1,logYPos,message)
+            gpu.setForeground(0xffffff)
         end
-        
-        gpu.setForeground(color)
-        gpu.set(1,logYPos,message)
-        gpu.setForeground(0xffffff)
     end
 }
 

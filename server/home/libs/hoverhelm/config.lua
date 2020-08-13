@@ -6,6 +6,7 @@ return {
             port = 1 -- 0 for tunnel
         }
     },
-    timezone=0
+    timezone=0,
+    debugLog=true
     
 }
