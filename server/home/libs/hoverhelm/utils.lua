@@ -32,6 +32,11 @@ function split(str, separator)
     return table.unpack(r)
 end
 
+function lines(s)
+    if s:sub(-1)~="\n" then s=s.."\n" end
+    return s:gmatch("(.-)\n")
+end
+
 function collect(iterator)
     local r = {}
     for k,v in iterator do
