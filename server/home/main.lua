@@ -58,9 +58,9 @@ hoverhelmModemMessageHandler = event.listen("modem_message",function(_,receiverA
         local args = table.pack(...)
         foreach(handlers[msg],  function(_,handler)
             local ok, err = pcall(handler,card, senderAddress,table.unpack(args))
-            if not ok then 
-                terminal.noticeLocalLog(terminal.log_level.err, "Exception on calling handler "..handler.description..err)
-                terminal.noticeLocalLog(terminal.log_level.err, "   "..err)
+            if not ok then
+                terminal.noticeLocalLog(terminal.log_level.error, "Exception on calling handler "..handler.description)
+                terminal.noticeLocalLog(terminal.log_level.error, "   "..err)
             end
         end)
     end
