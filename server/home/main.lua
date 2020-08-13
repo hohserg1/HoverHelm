@@ -39,8 +39,8 @@ local networkCards =
     map(config.inUseNetworkCards,function(address,cfg)
         local card = component.proxy(address)
         return address, {send = 
-            card.type == "modem" and (function(to, ...)card.send(to, cfg.port, ...)end) or
-            card.type == "tunnel" and (function(to, ...)card.send(...)end)
+            card.type == "modem" and (function(to, ...)return card.send(to, cfg.port, ...)end) or
+            card.type == "tunnel" and (function(to, ...)return card.send(...)end)
             --todo: stem support
         }    
     end)
