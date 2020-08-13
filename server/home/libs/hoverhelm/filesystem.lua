@@ -146,13 +146,13 @@ return {
         hh_fs_invoke = function(card,sender, method, ...)
             local proxy = fsProxyByAddress[sender]
             if proxy then
-                --local r = table.pack(xpcall(proxy[method], debug.traceback, proxy, ...))
                 local r = table.pack(pcall(proxy[method], proxy, ...))
-                card.send(sender, r[1] and "hh_result" or "hh_error", 
+                local isBeenSended = card.send(sender, r[1] and "hh_result" or "hh_error", 
                     table.unpack(
                         mapSeq(r, function(v) return type(v)=="table" and serialization.serialize(v) or v end)
                     ,2)
                 )
+                terminal.noticeLocalLog(terminal.log_level.debug, (isBeenSended and "fine " or ("HM? "..table.concat(mapSeq(r,function(v)return size(v)end),", ").."|"))..#r..table.concat(mapSeq(r,tostring)," "))
             else
                 card.send(sender,"hh_error","not connected")            
             end
