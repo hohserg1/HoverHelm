@@ -128,6 +128,16 @@ local baseProxy={__index={
         return r
     end)
 }}
+
+local function size(object)
+    if type(object)=="string" then
+        return #object
+    elseif type(object)=="number" then
+        return 4
+    else
+        return 4
+    end
+end
     
 
 return {
@@ -152,7 +162,7 @@ return {
                         mapSeq(r, function(v) return type(v)=="table" and serialization.serialize(v) or v end)
                     ,2)
                 )
-                terminal.noticeLocalLog(terminal.log_level.debug, (isBeenSended and "fine " or ("HM? "..table.concat(mapSeq(r,function(v)return size(v)end),", ").."|"))..#r..table.concat(mapSeq(r,tostring)," "))
+                --terminal.noticeLocalLog(terminal.log_level.debug, (isBeenSended and "fine " or ("HM? "..table.concat(mapSeq(r,function(v)return size(v)end),", ").."|"))..#r..table.concat(mapSeq(r,tostring)," "))
             else
                 card.send(sender,"hh_error","not connected")            
             end
