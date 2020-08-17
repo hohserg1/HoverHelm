@@ -151,12 +151,15 @@ return {
             local success, line, description =
                 pcall(term.read, { nowrap = true })
             if not success or description and description:find("interrupted") then
-                event.cancel(hoverhelmModemMessageHandler)
-                noticeLocalLog(log_level.msg, "HoverHelm server finished")
-                os.exit()
+                hoverhelm.stop()
             end
-            local deviceName, command = split(removeLastNewLineSymbol(line), ">")
-            inputOnDevice(deviceName, localTerminal, command)
+            if line:find(">") then
+                local deviceName, command = split(removeLastNewLineSymbol(line), ">")
+                inputOnDevice(deviceName, localTerminal, command)
+            else
+                local localCommand = {split(removeLastNewLineSymbol(line), " ")}
+                commands[localCommand[1]](table.unpack(localCommand,2))
+            end
         end
     end
 }
