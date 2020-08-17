@@ -1,0 +1,8 @@
+# Made in Blockbench 3.5.4
+newmtl 0
+map_Kd aluminum_1.png 
+newmtl 1
+map_Kd drone.png 
+newmtl 2
+map_Kd drone_top.png 
+newmtl none
