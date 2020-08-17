@@ -7,6 +7,6 @@ return {
         }
     },
     timezone=0,
-    debugLog=true
+    debugLog=false
     
 }
