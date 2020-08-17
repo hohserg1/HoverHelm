@@ -93,8 +93,7 @@ local pullInsensibly do
 end
 
 
---[[
-#if_def modem
+---[[#if_def modem
 
 local networkCard = networkCardAddress and component.proxy(networkCardAddress) or component.modem
 local hhServerEventFilter = createPlainFilter("modem_message",networkCard.address, serverAddress, port)
@@ -105,10 +104,10 @@ bios.card = {
     end
 }
 
-#end_if
---]]
+--#end_if]]
 
---#if_def tunnel
+
+---[[#if_def tunnel
 
 local networkCard = networkCardAddress and component.proxy(networkCardAddress) or component.tunnel
 local hhServerEventFilter = createPlainFilter("modem_message",networkCard.address)
@@ -117,7 +116,7 @@ bios.card = {
     send = networkCard.send
 }
 
---#end_if
+--#end_if]]
 
 local function unserialize(tableString)
     return assert(load("return "..tableString,"tableString","t",{}))()
