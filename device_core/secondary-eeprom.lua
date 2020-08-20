@@ -172,11 +172,23 @@ local vcomponent = {} do
 end
 
 local proxy = {
-    __index=function(t,k)
-        return function(...)
-            return bios.card.sendAwait("hh_fs_invoke", k, ...)
+    __index=setmetatable({
+            open = function(path,mode)
+                if path
+            end,
+            read = function(handle,count)
+            
+            end,
+            close = function(handle)
+            
+            end
+        }, {
+        __index=function(t,k)
+            return function(...)
+                return bios.card.sendAwait("hh_fs_invoke", k, ...)
+            end
         end
-    end
+    })
 }
 
 local fsAddress=vcomponent.uuid()
