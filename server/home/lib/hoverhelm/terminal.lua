@@ -156,9 +156,14 @@ return {
             if line:find(">") then
                 local deviceName, command = split(removeLastNewLineSymbol(line), ">")
                 inputOnDevice(deviceName, localTerminal, command)
-            else
+            elseif #line>0 then
                 local localCommand = {split(removeLastNewLineSymbol(line), " ")}
-                commands[localCommand[1]](table.unpack(localCommand,2))
+                local command = commands[localCommand[1]]
+                if command then
+                    command(table.unpack(localCommand,2))
+                else
+                    noticeLocalLog(log_level.error, "command not found: "..localCommand[1])
+                end
             end
         end
     end
