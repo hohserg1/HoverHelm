@@ -3,13 +3,19 @@ local serialization=require"serialization"
 
 local deviceNameByAddress={}
 local addressByDeviceName={}
-for line in io.lines("/home/hoverhelm/userdata.txt") do
-    local separator = line:find(":")
-    local address = line:sub(1,separator-1)
-    local name = line:sub(separator+1)
-    
-    deviceNameByAddress[address]=name
-    addressByDeviceName[name]=address
+
+do
+    local userdataPath = "/home/hoverhelm/userdata.txt"
+    if filesystem.exists(userdataPath) then
+        for line in io.lines(userdataPath) do
+            local separator = line:find(":")
+            local address = line:sub(1,separator-1)
+            local name = line:sub(separator+1)
+            
+            deviceNameByAddress[address]=name
+            addressByDeviceName[name]=address
+        end
+    end
 end
 
 return {
