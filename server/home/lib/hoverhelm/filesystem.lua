@@ -161,7 +161,25 @@ return {
                 if not filesystem.exists(userFolder) then
                     filesystem.makeDirectory(userFolder)
                 end
-                fsProxyByAddress[sender] = setmetatable({userFolder = userFolder, specials = specials.createNewSpecials()},baseProxy)        
+                fsProxyByAddress[sender] = setmetatable({userFolder = userFolder, specials = specials.createNewSpecials()},baseProxy)
+                
+                local fsProxy = fsProxyByAddress[sender]
+                
+                local frequentlyReadedFilesPath = userFolder.."frequentlyReadedFiles.txt"
+                if filesystem.exists(frequentlyReadedFilesPath) then
+                    for filename in io.lines(frequentlyReadedFilesPath) do
+                        if fsProxy.exists(filename) then
+                            card.send(sender,"hh_fs_presend", filename)
+                            local h = fsProxy.open(filename)
+                            repeat
+                                local data = fsProxy.read(h,math.huge)
+                                if data then
+                                    card.send(sender,"hh_fs_presend_chunk", data)
+                                end
+                            until not data  
+                        end
+                    end
+                end
             end
         end,
         
