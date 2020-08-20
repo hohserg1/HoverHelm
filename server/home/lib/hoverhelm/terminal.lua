@@ -153,16 +153,19 @@ return {
             if not success or description and description:find("interrupted") then
                 hoverhelm.stop()
             end
+            
+            line = removeLastNewLineSymbol(line)
+            
             if line:find(">") then
-                local deviceName, command = split(removeLastNewLineSymbol(line), ">")
+                local deviceName, command = split(line, ">")
                 inputOnDevice(deviceName, localTerminal, command)
             elseif #line>0 then
-                local localCommand = {split(removeLastNewLineSymbol(line), " ")}
+                local localCommand = {split(line, " ")}
                 local command = commands[localCommand[1]]
                 if command then
                     command(table.unpack(localCommand,2))
                 else
-                    noticeLocalLog(log_level.error, "command not found: "..localCommand[1])
+                    noticeLocalLog(log_level.error, "command not found: "..(localCommand[1] or "nil"))
                 end
             end
         end
