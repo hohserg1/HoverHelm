@@ -180,6 +180,7 @@ return {
                         end
                     end
                 end
+                card.send(sender,"hh_fs_presend_finished")
             end
         end,
         
