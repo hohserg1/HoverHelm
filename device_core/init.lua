@@ -118,6 +118,8 @@ function os.executeProgram(name, ...)
     end
 end
 
+println(fs.list("/"))
+
 --main cycle
 local ok, err = xpcall(function()
     if config.autorun then

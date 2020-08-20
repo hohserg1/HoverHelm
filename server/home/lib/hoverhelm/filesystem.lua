@@ -1,4 +1,5 @@
 local filesystem=require"filesystem"
+local serialization=require"serialization"
 
 local fsProxyByAddress = {}
 
@@ -123,9 +124,20 @@ local baseProxy={__index={
     end),
     
     list = pathFunctionWrapper(function(self, userLocated, coreLocated)        
-        local r=filesystem.list(coreLocated) or {}
-        foreach(filesystem.list(userLocated) or {}, function(key, value) r[key]=value end)
-        return r
+        local coreIterator, coreErr = filesystem.list(coreLocated)
+        local coreContent = coreIterator and collect(coreIterator) or {}
+        local userIterator, userErr = filesystem.list(userLocated)
+        local userContent = userIterator and collect(userIterator) or {}
+        
+        if coreIterator or userIterator then
+            local r = {}
+            foreach(coreContent, function(_,v) r[v]=true end)
+            foreach(userContent, function(_,v) r[v]=true end)
+            
+            return r
+        else
+            return nil,userErr
+        end
     end)
 }}
 
