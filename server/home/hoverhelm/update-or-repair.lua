@@ -1,11 +1,17 @@
 local filesystem=require"filesystem"
 local serialization=require"serialization"
 local internet=require"internet"
+
+filesystem.makeDirectory("/home/lib/")
 if not filesystem.exists("/home/lib/json.lua") then
-    filesystem.makeDirectory("/home/lib/")
     os.execute("wget -f https://raw.githubusercontent.com/rxi/json.lua/master/json.lua /home/lib/json.lua")
 end
+if not filesystem.exists("/home/lib/sha256.lua") then
+    os.execute("wget -f https://raw.githubusercontent.com/IgorTimofeev/MineOS/master/Libraries/SHA-256.lua /home/lib/sha256.lua")
+end
+
 local json=require"json"
+local sha256=require"sha256"
 
 local function flatMapSeq(seq, f)
     local r = {}
@@ -27,6 +33,11 @@ runPathList()
 
 local isFirstInstall = runPath:sub(1,5) == "/tmp/" or runPathList()==nil
 
+if not isFirstInstall and hoverhelm then
+    print("HoverHelm server is runned. Stop HoverHelm server before update")
+    os.exit()
+end
+
 print("isFirstInstall = "..tostring(isFirstInstall))
 
 local hhConfig = not isFirstInstall and require"hoverhelm.config"
@@ -34,9 +45,14 @@ local hhConfig = not isFirstInstall and require"hoverhelm.config"
 local serverInstallPath = "/home/hoverhelm/" 
 local coreRootFolder = isFirstInstall and "/home/hoverhelm/device_core/" or hhConfig.coreRootFolder
 
-filesystem.makeDirectory(serverInstallPath)
-filesystem.makeDirectory(coreRootFolder)
-filesystem.makeDirectory("/home/lib/hoverhelm/")
+local function recreateDirectory(path)
+    filesystem.remove(path)
+    filesystem.makeDirectory(path)
+end
+
+recreateDirectory(serverInstallPath)
+recreateDirectory(coreRootFolder)
+recreateDirectory("/home/lib/hoverhelm/")
 
 
 local function getFilesInRepo(path, recursively)
@@ -55,9 +71,10 @@ local function getFilesInRepo(path, recursively)
 end
 
 local function download(path, destination)
-    print("\ndowloading to "..destination)
+    print("dowloading to "..destination)
     filesystem.makeDirectory(filesystem.path(destination))
     os.execute("wget -f https://raw.githubusercontent.com/hohserg1/HoverHelm/master/"..path.." "..destination)
+    print(" ")
 end
 
 --print(serialization.serialize(getFilesInRepo("/device_core"),true))
@@ -84,3 +101,5 @@ print("Downloading server")
 for _,v in ipairs(getFilesInRepo("/server/home/hoverhelm", false)) do
     download(v, serverInstallPath..filesystem.name(v))
 end
+
+filesystem.copy("/home/lib/hoverhelm/utils.lua", coreRootFolder.."/lib/utils.lua")
