@@ -20,7 +20,7 @@ if config.log.enabled then
     end
 
     function log.printLeveled(lvl, ...)
-        local message = prepareText(log.level[lvl], table.concat({...}," "))
+        local message = prepareText(log.level[lvl], table.concat(mapSeq(table.pack(...),tostring)," "))
         fs.write(logHandle, message.."\n")
         bios.card.send("hh_log",lvl,message)
     end
