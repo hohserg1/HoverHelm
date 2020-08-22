@@ -54,8 +54,11 @@ local cardByDeviceName = {}
 
 local function noticeLocalLog(color, ...)
     local other = table.pack(...)
-    local message = table.concat(mapSeq(other, tostring), " ")
-    localTerminal:addLine(color, prepareText(levelNameByColor[color],message))
+    local message = prepareText(levelNameByColor[color], table.concat(mapSeq(other, tostring), " "))
+    local l = collect(lines(message))
+    foreach(l, function(_,line)
+        localTerminal:addLine(color, line)
+    end)
 end
 
 local function noticeLog(deviceAddress, color, message)
