@@ -161,18 +161,20 @@ return {
             
             line = removeLastNewLineSymbol(line)
             
-            noticeLocalLog(log_level.msg, line)
+            if #line>0 then
+                noticeLocalLog(log_level.msg, line)
             
-            if line:find(">") then
-                local deviceName, command = split(line, ">")
-                inputOnDevice(deviceName, localTerminal, command)
-            elseif #line>0 then
-                local localCommand = {split(line, " ")}
-                local command = commands[localCommand[1]]
-                if command then
-                    command(table.unpack(localCommand,2))
+                if line:find(">") then
+                    local deviceName, command = split(line, ">")
+                    inputOnDevice(deviceName, localTerminal, command)
                 else
-                    noticeLocalLog(log_level.error, "command not found: "..(localCommand[1] or "nil"))
+                    local localCommand = {split(line, " ")}
+                    local command = commands[localCommand[1]]
+                    if command then
+                        command(table.unpack(localCommand,2))
+                    else
+                        noticeLocalLog(log_level.error, "command not found: "..(localCommand[1] or "nil"))
+                    end
                 end
             end
         end
