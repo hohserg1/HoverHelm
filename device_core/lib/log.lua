@@ -7,7 +7,9 @@ local log = {
     }
 }
 
-foreach(log.level,function(name,color)log.level[color]=name end)
+local levelNameByColor = map(log.level,function(name,color)return color,name end)
+
+println(levelNameByColor[log.level.msg])
 
 if config.log.enabled then
 
@@ -20,7 +22,7 @@ if config.log.enabled then
     end
 
     function log.printLeveled(lvl, ...)
-        local message = prepareText(log.level[lvl], table.concat(mapSeq(table.pack(...),tostring)," "))
+        local message = prepareText(levelNameByColor[lvl], table.concat(mapSeq(table.pack(...),tostring)," "))
         fs.write(logHandle, message.."\n")
         bios.card.send("hh_log",lvl,message)
     end

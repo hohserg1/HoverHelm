@@ -22,7 +22,7 @@ local log_level={
     debug=0x11ff11
 }
 
-foreach(log_level,function(name,color)log_level[color]=name end)
+local levelNameByColor = map(log_level,function(name,color)return color,name end)
 
 local baseRemoteTerminal = {__index = {
     addLine = function(self, color, message)
@@ -55,7 +55,7 @@ local cardByDeviceName = {}
 local function noticeLocalLog(color, ...)
     local other = table.pack(...)
     local message = table.concat(mapSeq(other, tostring), " ")
-    localTerminal:addLine(color, prepareText(log_level[color],message))
+    localTerminal:addLine(color, prepareText(levelNameByColor[color],message))
 end
 
 local function noticeLog(deviceAddress, color, message)
@@ -157,6 +157,8 @@ return {
             end
             
             line = removeLastNewLineSymbol(line)
+            
+            noticeLocalLog(log_level.msg, line)
             
             if line:find(">") then
                 local deviceName, command = split(line, ">")
