@@ -7,5 +7,7 @@ return {
     terminal = {
     
     },
-    timezone = 0
+    timezone = 0,
+    
+    savePresendToTempFS = true
 }

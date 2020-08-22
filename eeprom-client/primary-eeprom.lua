@@ -178,8 +178,103 @@ local function loadFile(file,api)
     return ok()
 end
 
+do
+    local function segments(path)
+        local parts = {}
+        for part in path:gmatch("[^\\/]+") do
+            local current, up = part:find("^%.?%.$")
+            if current then
+                if up == 2 then
+                    table.remove(parts)
+                end
+            else
+                table.insert(parts, part)
+            end
+        end
+        return parts
+    end
+    function canonical(path)
+        local result = table.concat(segments(path), "/")
+        if unicode.sub(path, 1, 1) == "/" then
+            return "/" .. result
+        else
+            return result
+        end
+    end
 
-bios.name = bios.card.sendAwait("hh_connect", bios.name)
+    local tmpFs = component.proxy(computer.tmpAddress())
+
+    local presendPath = "/presend/"
+
+    local presendCacheSaved = tmpFs.exists(presendPath) and tmpFs.isDirectory(presendPath)
+
+    bios.name = bios.card.sendAwait("hh_connect", bios.name, presendCacheSaved)
+
+    bios.presendCache = {}
+
+    local function loadPresendFromTempFs()
+    
+        local function readFile(path)
+            local f, err = tmpFs.open(path,"r")
+            if f then
+                local r=""
+                local chunk=tmpFs.read(f,math.huge)
+                while chunk do
+                    r=r..chunk
+                    chunk=tmpFs.read(f,math.huge)
+                end
+
+                return r
+            else
+                return nil, err
+            end    
+        end
+        
+        for _,filename in ipairs(tmpFs.list(presendPath)) do
+            if not tmpFs.isDirectory(filename) then
+                local canonicalPath = canonical(filename:gsub("%$","/"))
+                println("loaded presend from tmp", canonicalPath)
+                bios.presendCache[canonicalPath] = readFile(presendPath..filename)
+            end            
+        end
+        
+        
+    end
+
+    local function awaitPresend()
+    
+        local currentFileName
+        
+        local h
+        while true do
+            local invokeResult = table.pack(bios.card.await())
+            if invokeResult[1]=="hh_fs_presend" then
+                currentFileName = canonical(invokeResult[2])
+                bios.presendCache[currentFileName] = ""
+            elseif invokeResult[1]=="hh_fs_presend_chunk" then
+                bios.presendCache[currentFileName] = bios.presendCache[currentFileName]..invokeResult[2]
+            elseif invokeResult[1]=="hh_fs_presend_finished" then
+                break
+            end    
+        end
+        
+        
+    end
+
+    local start = computer.uptime()
+
+    if presendCacheSaved then
+        loadPresendFromTempFs()
+    else
+        awaitPresend()
+    end
+
+    println("presend time: ",computer.uptime()-start)
+
+
+end
+    
+    --println("memory1",computer.freeMemory(), computer.totalMemory())
 
 println("test1",bios.name)
 bios.fsAddress=loadFile("/secondary-eeprom.lua",function(...)return bios.card.sendAwait("hh_fs_invoke",...)end)

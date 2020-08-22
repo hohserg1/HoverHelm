@@ -174,13 +174,30 @@ end
 local proxy = {
     __index=setmetatable({
             open = function(path,mode)
-                if path
+                local canonicalPath = canonical(path)
+                local existedCache = bios.presendCache[canonicalPath]
+                if (not mode or mode=="r") and existedCache then
+                    return {content = existedCache, readed = false}
+                else
+                    return bios.card.sendAwait("hh_fs_invoke", "open", path, mode)
+                end
             end,
             read = function(handle,count)
-            
+                if type(handle)=="table" and handle.content then
+                    if handle.readed then
+                        return nil
+                    else
+                        handle.readed = true
+                        return handle.content
+                    end
+                else
+                    return bios.card.sendAwait("hh_fs_invoke", "read", handle, count)
+                end
             end,
             close = function(handle)
-            
+                if type(handle)~="table" then
+                    return bios.card.sendAwait("hh_fs_invoke", "close", handle)
+                end
             end
         }, {
         __index=function(t,k)

@@ -4,6 +4,7 @@ return {
             local actualDeviceName = userdata.getOrRegisterDeviceName(sender, deviceName)
             terminal.noticeLocalLog(terminal.log_level.msg, sender.." try to connect with name "..deviceName)
             if actualDeviceName then
+                hoverhelm.chechTime=require"computer".uptime()
                 card.send(sender,"hh_ok", actualDeviceName)
                 terminal.noticeLocalLog(terminal.log_level.msg, sender.."\\"..actualDeviceName.." successfuly connected")       
             else

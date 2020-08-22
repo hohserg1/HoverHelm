@@ -108,6 +108,35 @@ require"terminal"
 
 log.print(bios.name.." started")
 
+
+--wrap computer.shutdown for save presend cache to temp filesystem if soft reboot
+do
+    local originalShutdown = computer.shutdown
+
+    computer.shutdown = function(reboot)
+        if reboot then
+            local tmpFs = component.proxy(computer.tmpAddress())
+            local presendPath = "/presend/"
+            
+            if config.savePresendToTempFS and not tmpFs.exists(presendPath) then
+
+                local function prepareFileName(path)
+                    return path:gsub("/","$")
+                end
+                
+                tmpFs.makeDirectory(presendPath)
+                foreach(bios.presendCache, function(path,content)
+                    local h = tmpFs.open(presendPath..prepareFileName(path),"w")
+                    tmpFs.write(h,content)
+                    tmpFs.close(h)
+                end)
+
+            end
+        end
+        originalShutdown(reboot)
+    end
+end
+
 function os.executeProgram(name, ...)
     local path = os.findFileIn(name..".lua", "/", "/programs/")
     local l, err = loadfile(path,name)

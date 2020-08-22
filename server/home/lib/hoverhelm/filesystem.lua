@@ -150,37 +150,57 @@ local function size(object)
         return 4
     end
 end
+
+local function freeAllHandles(prevProxy)
+    if prevProxy then
+        for i=1, prevProxy.specials.n do
+            pcall(function()
+                prevProxy.specials[i]:close()
+            end)
+        end                    
+    end
+end
+
+local function presendFrequentlyReadedFiles(fsProxy, card, sender)
+    local frequentlyReadedFilesPath = fsProxy.userFolder.."frequentlyReadedFiles.txt"
+    if filesystem.exists(frequentlyReadedFilesPath) then
+        for filename in io.lines(frequentlyReadedFilesPath) do
+            if fsProxy:exists(filename) and not fsProxy:isDirectory(filename) then
+                card.send(sender,"hh_fs_presend", filename)
+                local h = fsProxy:open(filename)
+                repeat
+                    local data = fsProxy:read(h,math.huge)
+                    if data then
+                        card.send(sender,"hh_fs_presend_chunk", data)
+                    end
+                until not data
+                fsProxy:close(h)
+            end
+        end
+    end
+    card.send(sender,"hh_fs_presend_finished")
+end
     
 
 return {
     handlers={
-        hh_connect = function(card,sender,_)
+        hh_connect = function(card, sender, _, presendCacheSaved)
             local actualDeviceName = userdata.getDeviceName(sender)
             if actualDeviceName then
                 local userFolder = config.userRootFolder.."/"..actualDeviceName.."/"
                 if not filesystem.exists(userFolder) then
                     filesystem.makeDirectory(userFolder)
                 end
+                
+                freeAllHandles(fsProxyByAddress[sender])                
+                
                 fsProxyByAddress[sender] = setmetatable({userFolder = userFolder, specials = specials.createNewSpecials()},baseProxy)
                 
-                local fsProxy = fsProxyByAddress[sender]
-                
-                local frequentlyReadedFilesPath = userFolder.."frequentlyReadedFiles.txt"
-                if filesystem.exists(frequentlyReadedFilesPath) then
-                    for filename in io.lines(frequentlyReadedFilesPath) do
-                        if fsProxy.exists(filename) then
-                            card.send(sender,"hh_fs_presend", filename)
-                            local h = fsProxy.open(filename)
-                            repeat
-                                local data = fsProxy.read(h,math.huge)
-                                if data then
-                                    card.send(sender,"hh_fs_presend_chunk", data)
-                                end
-                            until not data  
-                        end
-                    end
+                terminal.noticeLocalLog(terminal.log_level.msg, "presendCacheSaved", presendCacheSaved)
+                if not presendCacheSaved then
+                    presendFrequentlyReadedFiles(fsProxyByAddress[sender], card, sender)
                 end
-                card.send(sender,"hh_fs_presend_finished")
+                
             end
         end,
         
