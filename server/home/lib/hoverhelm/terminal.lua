@@ -52,7 +52,9 @@ local terminalByAddress = {} -- Map[terminalAddress, terminal]
 local terminalsByDeviceAddress = {} -- Map[deviceAddress, Map[terminalAddress, terminal]]
 local cardByDeviceName = {}
 
-local function noticeLocalLog(color, message)
+local function noticeLocalLog(color, ...)
+    local other = table.pack(...)
+    local message = table.concat(mapSeq(other, tostring), " ")
     localTerminal:addLine(color, prepareText(log_level[color],message))
 end
 
