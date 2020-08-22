@@ -16,7 +16,7 @@ if config.log.enabled then
     local logHandle = fs.open("/logs/latest.log","a")
 
     local function prepareText(lvl,message)
-        return ("[%s][%s] %s"):format(timeMark(), lvl, message)
+        return ("[%s][%s][%s] %s"):format(timeMark(), bios.name, lvl, message)
     end
 
     function log.printLeveled(lvl, ...)
