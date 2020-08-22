@@ -6,12 +6,8 @@ filesystem.makeDirectory("/home/lib/")
 if not filesystem.exists("/home/lib/json.lua") then
     os.execute("wget -f https://raw.githubusercontent.com/rxi/json.lua/master/json.lua /home/lib/json.lua")
 end
-if not filesystem.exists("/home/lib/sha256.lua") then
-    os.execute("wget -f https://raw.githubusercontent.com/IgorTimofeev/MineOS/master/Libraries/SHA-256.lua /home/lib/sha256.lua")
-end
 
 local json=require"json"
-local sha256=require"sha256"
 
 local function flatMapSeq(seq, f)
     local r = {}
