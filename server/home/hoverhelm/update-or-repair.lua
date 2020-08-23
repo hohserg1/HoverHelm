@@ -99,3 +99,5 @@ for _,v in ipairs(getFilesInRepo("/server/home/hoverhelm", false)) do
 end
 
 filesystem.copy("/home/lib/hoverhelm/utils.lua", coreRootFolder.."/lib/utils.lua")
+
+os.execute("edit /home/lib/hoverhelm/config.lua")
