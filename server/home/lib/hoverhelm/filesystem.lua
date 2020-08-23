@@ -208,12 +208,12 @@ return {
             local proxy = fsProxyByAddress[sender]
             if proxy then
                 local r = table.pack(pcall(proxy[method], proxy, ...))
+                terminal.noticeLocalLog(terminal.log_level.debug, method, ..., "||", table.concat(mapSeq(r,tostring)," "))
                 local isBeenSended = card.send(sender, r[1] and "hh_result" or "hh_error", 
                     table.unpack(
                         mapSeq(r, function(v) return type(v)=="table" and serialization.serialize(v) or v end)
                     ,2)
                 )
-                --terminal.noticeLocalLog(terminal.log_level.debug, (isBeenSended and "fine " or ("HM? "..table.concat(mapSeq(r,function(v)return size(v)end),", ").."|"))..#r..table.concat(mapSeq(r,tostring)," "))
             else
                 card.send(sender,"hh_error","not connected")            
             end
