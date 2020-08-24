@@ -45,6 +45,7 @@ return {
                                           "Credits: \n"..
                                           "Thx to BrightYC for review and some discussion \n"..
                                           "Thx to swg2you or bibi.lua program - useful for testing \n"..
+                                          "Thx to Fingercomp for help with marketing \n"..
                                           "Thx to everyone who uses it or gives any help \n"
         )
     end,
