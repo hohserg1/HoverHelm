@@ -1,4 +1,10 @@
-return {
+local component=require"component"
+
+local function prepareConfig(config)
+    config.inUseNetworkCards = map(config.inUseNetworkCards, function(address, cfg) return component.get(address),cfg end)
+end
+
+return prepareConfig({
     userRootFolder="/home/hoverhelm/devices/",
     coreRootFolder="/home/hoverhelm/device_core/",
     inUseNetworkCards = {
@@ -9,4 +15,4 @@ return {
     timezone=0,
     debugLog=false
     
-}
+})
