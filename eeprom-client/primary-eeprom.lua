@@ -104,6 +104,8 @@ bios.card = {
     end
 }
 
+networkCard.open(port)
+
 --#end_if]]
 
 
