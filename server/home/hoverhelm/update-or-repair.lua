@@ -81,6 +81,11 @@ for _,v in ipairs(getFilesInRepo("/device_core", true)) do
     download(v, coreRootFolder..(v:sub(#"/device_core")))
 end
 
+print("Downloading device eeprom firmware")
+for _,v in ipairs(getFilesInRepo("/eeprom-client", true)) do
+    download(v, serverInstallPath..v)
+end
+
 print("Downloading libs")
 local libPath = "/server/home/lib/hoverhelm"
 --print(serialization.serialize(getFilesInRepo(libPath),true))
